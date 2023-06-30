@@ -10,6 +10,7 @@
     @keyup.up="doManualSelect(selectedIndex, selectedIndex - 1)"
     @keyup.down="doManualSelect(selectedIndex, selectedIndex + 1)"
     tabindex="0"
+    ref="picker"
   >
     <div
       v-if="arrows"
@@ -138,10 +139,7 @@ export default Vue.extend({
      */
     visibleOptionsAmount: {
       type: Number,
-      default: 10,
-      validator: function (value) {
-        return value % 2 === 0;
-      }
+      default: 10
     },
 
     /** If 'infinite' is passed, then you can scroll the Picker forever, all values will repeat */
@@ -210,8 +208,7 @@ export default Vue.extend({
   },
 
   mounted () {
-    document.addEventListener('mousedown', this.touchstart as EventListener);
-    document.addEventListener('mouseup', this.touchend as EventListener);
+    this.$refs.picker.addEventListener('mousedown', this.touchstart as EventListener);
 
     // Move to the initial value
     this.moveTo(this.selectedIndex);
@@ -274,6 +271,7 @@ export default Vue.extend({
     },
 
     touchstart (e: MouseOrTouch) {
+      document.addEventListener('mouseup', this.touchend as EventListener);
       if (e.target) e.target.addEventListener('touchmove', this.touchmove as EventListener);
       document.addEventListener('mousemove', this.touchmove as EventListener);
 
@@ -309,6 +307,7 @@ export default Vue.extend({
     },
 
     touchend (e: TouchEvent) {
+      document.removeEventListener('mouseup', this.touchend as EventListener);
       if (e.target) e.target.removeEventListener('touchmove', this.touchmove as EventListener);
       document.removeEventListener('mousemove', this.touchmove as EventListener);
       this.endRoll();
